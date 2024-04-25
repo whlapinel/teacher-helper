@@ -1,39 +1,37 @@
 import time
-from selenium import webdriver
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from urllib.parse import urlparse
 
-def log_in(user):
+def log_in(user, driver, wait):
     username = user.username
     password = user.password
-    class_number = '5137260'
-    test_name = 'Unit 5 Test (Standard) Spring 2024 pdf'
-    # username = input("Enter your username: ")
-    # password = input("Enter your password: ")
-    driver = webdriver.Chrome()
     driver.get('https://launchpad.classlink.com/cmsk12')
-    sign_in_btn = driver.find_element(By.CSS_SELECTOR, 'button.btn.btn-primary.btn-block.saml.UseTMS')
+    sign_in_btn = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'button.btn.btn-primary.btn-block.saml')))
     sign_in_btn.click()
     time.sleep(5)
-    usr_input = driver.find_element(By.CSS_SELECTOR, 'input#userNameInput')
-    pwd_input = driver.find_element(By.CSS_SELECTOR, 'input#passwordInput')
-    submit_btn = driver.find_element(By.CSS_SELECTOR, 'span#submitButton')
+    usr_input = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'input#userNameInput')))
+    pwd_input = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'input#passwordInput')))
+    submit_btn = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'span#submitButton')))
     usr_input.send_keys(username)
     pwd_input.send_keys(password)
     submit_btn.click()
-    time.sleep(5)
-    text_me_link = driver.find_element(By.CSS_SELECTOR, 'a#verificationOption0')
+    text_me_link = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'a#verificationOption0')))
+    time.sleep(1)
     text_me_link.click()
     code = input("Please enter the verification code sent to your phone: ")
-    code_input = driver.find_element(By.CSS_SELECTOR, 'input#verificationCodeInput')
+    code_input = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'input#verificationCodeInput')))
     code_input.send_keys(code)
-    sign_in_btn2 = driver.find_element(By.CSS_SELECTOR, 'input#signInButton')
+    sign_in_btn2 = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'input#signInButton')))
     sign_in_btn2.click()
-    # next line is the problem line... not very surprised. let's try waiting
-    time.sleep(15)
-    # click on MasteryConnect app from LaunchPad
     selector = 'application[aria-label="MasteryConnect"] > div.cl-clip-img-ctnr.ng-star-inserted'
-    canvas_btn = driver.find_element(By.CSS_SELECTOR, selector)
+    canvas_btn = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, selector)))
+    original_tab = driver.current_window_handle
+    assert len(driver.window_handles) == 1
     canvas_btn.click()
-    time.sleep(15)
+    wait.until(EC.number_of_windows_to_be(2))
+    for window_handle in driver.window_handles:
+        if window_handle != original_tab:
+            driver.switch_to.window(window_handle)
+            break
+    wait.until(EC.title_is("Mastery Connect :: Home"))
     return driver

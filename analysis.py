@@ -1,59 +1,66 @@
+import datetime
 import math
+import csv
+from typing import List
+from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait
+import id_numbers
+import test_scores
+from test_reports import get_report, CanvasReport
 
 
-# get_analysis will take 2 arguments, ml_results and std_results, and return the following:
-# pct_assessed (one percentage), avg_score (tuple of 2 numbers for ml and std), pct_failed (tuple),
-# and problem questions (array of numbers) = Questions that less than 60% answered correctly.
 class Analysis:
-    def __init__(self, percent_tested, avg_scores, pct_failed, problem_questions):
-        self.percent_tested = percent_tested
-        self.average_scores = avg_scores
-        self.pct_failed = pct_failed
-        self.problem_questions = problem_questions
+    def __init__(self, test_name: str, test_id: int, class_name: str, class_id: int, percent_tested: float,
+                 avg_score: float, pct_failed: float, problem_questions: [int]) -> None:
+        self.test_name: str = test_name
+        self.test_id: int = test_id
+        self.class_name: str = class_name
+        self.class_id: int = class_id
+        self.percent_tested: float = percent_tested
+        self.avg_score: float = avg_score
+        self.pct_failed: float = pct_failed
+        self.problem_questions: [int] = problem_questions
 
     def __repr__(self):
-        return (f"Analysis(percent tested: {self.percent_tested},\n avg score (ML, Std/Hon): {self.average_scores},\n "
-                f"pct failed (ML, Std/Hon): {self.pct_failed},\n problem questions (ML, St"
-                f"d/Hon): {self.problem_questions})\n")
+        return (f"Analysis:\n"
+                f"class name: {self.class_name}\n "
+                f"test name: {self.test_name}\n"
+                f"percent tested: {self.percent_tested}\n "
+                f"avg score: {self.avg_score}\n"
+                f"pct failed: {self.pct_failed}\n"
+                f"\n")
 
 
-def get_analysis(ml_results, std_results):
+def get_analysis(class_name, class_id, test_name, driver, wait):
     print("running get_analysis...")
-    pct_tested = __get_percent_tested(ml_results, std_results)
-    avg_scores = __get_avg_scores(ml_results, std_results)
-    ml_pct_failed = __get_pct_failed(ml_results)
-    std_pct_failed = __get_pct_failed(std_results)
-    analysis = Analysis(pct_tested, avg_scores, (ml_pct_failed, std_pct_failed),
-                        problem_questions=([1, 2, 3], [1, 2, 3]))
+    test_id = id_numbers.get_test_id(class_id, driver, wait, test_name)
+    report = get_report(class_id, test_id, driver, wait)
+    scores = test_scores.get_scores(class_id, class_name, test_id, test_name, driver, wait)
+    pct_tested = __calc_percent_tested(scores)
+    avg_scores = __get_avg_score(scores)
+    pct_failed = __get_pct_failed(scores)
+    problem_questions = __get_problem_questions(report)
+    analysis = Analysis(test_name, test_id, class_name, class_id, pct_tested, avg_scores, pct_failed, problem_questions)
     return analysis
-
-
-def __get_percent_tested(ml_results, std_results):
-    return __calc_percent_tested(ml_results) + __calc_percent_tested(std_results)
 
 
 def __calc_percent_tested(results):
     if len(results) == 0:
         return 0
     untested_count = 0
-    total_results = len(results)
+    total_count = len(results)
     for result in results:
         if math.isnan(result.percentage):
             print("is nan: ", result.first_name, " ", result.percentage)
             print("percentage nan: ", result)
             untested_count += 1
         print("untested count", untested_count)
-    percent_untested = math.floor((untested_count / total_results) * 100)
-    print("percent untested: ", percent_untested)
-    percent_tested = 100 - percent_untested
+    tested_count = total_count - untested_count
+    print(f"tested: {tested_count}")
+    print(f"out of: {total_count}")
+    percent_tested = round((tested_count / total_count) * 100, 1)
     print("percent tested: ", percent_tested)
     return percent_tested
-
-
-def __get_avg_scores(ml_results, std_results):
-    ml_avg = __get_avg_score(ml_results)
-    st_avg = __get_avg_score(std_results)
-    return ml_avg, st_avg
 
 
 def __get_avg_score(results):
@@ -64,7 +71,7 @@ def __get_avg_score(results):
             total_count -= 1
         else:
             sum_scores += result.percentage
-    return math.floor(sum_scores / total_count)
+    return round(sum_scores / total_count, 1)
 
 
 def __get_pct_failed(results):
@@ -77,5 +84,20 @@ def __get_pct_failed(results):
             if result.percentage < 60:
                 fail_count += 1
         print("fail count: ", fail_count)
-    pct_failed = math.floor((fail_count / total_count) * 100)
+    pct_failed = round((fail_count / total_count) * 100, 1)
     return pct_failed
+
+
+def __get_problem_questions(report: CanvasReport) -> [int]:
+    return [1, 2, 3, 4, 5, 6, 7, 8]
+
+
+def write_to_csv(report_name: str, analyses: [Analysis]) -> None:
+    filename: str = f"{report_name} {datetime.date.today()}.csv"
+    with open(filename, "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["", "", f"{report_name}", "", ""])
+        writer.writerow(["class name", "test name", "pct tested", "avg score", "pct failed"])
+        for analysis in analyses:
+            writer.writerow([analysis.class_name, analysis.test_name, analysis.percent_tested, analysis.avg_score,
+                             analysis.pct_failed])

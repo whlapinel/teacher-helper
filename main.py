@@ -1,22 +1,14 @@
 import time
-
-from analysis import __get_percent_tested
-import download_csv
-import find_csv
+from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait
+import id_numbers
 import users
-from find_csv import most_recent_csv_in_downloads
-from test_result import get_test_results, Result
+import test_scores
 import login
-from analysis import get_analysis
+from analysis import Analysis, get_analysis, write_to_csv
+from test_scores import Score
 
-# This is a sample Python script.
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    # load from user config file
     run = True
     while run:
         user = users.User()
@@ -28,29 +20,31 @@ if __name__ == '__main__':
         if run_input == 'N':
             run = False
             continue
-        has_ml = input('is there an ML version to your test? Y/N')
-        ml_test_name = None
-        if has_ml == 'Y':
+        has_ml_input: str = input('is there an ML version to your test? (Y/N): ')
+        ml_test_name: str = ''
+        has_ml = False
+        if has_ml_input == 'Y':
             ml_test_name = input('Enter name of ML version: ')
+            has_ml = True
         std_test_name = 'Unit 5 Test (Standard) Spring 2024 pdf'
-        driver = login.log_in(user)
-        class_results = {}
-        analyses = {}
+        driver = webdriver.Chrome()
+        wait = WebDriverWait(driver, 30)
+        login.log_in(user, driver, wait)
+        std_test_id = 0
+        ml_test_id = 0
+        analyses: [Analysis] = []
         for class_name in user.classroom_names:
-            print("getting std/hon test results for class: ", class_name, "test name: ", std_test_name)
-            std_test_results = get_test_results(class_name, std_test_name, driver)
-            ml_test_results = {}
-            if ml_test_name:
-                print("getting ML test results for class: ", class_name, "test name: ", ml_test_name)
-                ml_test_results = get_test_results(class_name, ml_test_name, driver)
-                class_results = {"std": std_test_results, "ml": ml_test_results}
-            else:
-                class_results = {"std": std_test_results}
-            print("class results: ", class_results)
-            class_analysis = get_analysis(ml_test_results, std_test_results)
-            print("analysis for class " + class_name + ":\n")
-            print(class_analysis)
-            analyses[class_name] = class_analysis
-        print("Analyses: ", analyses)
+            print(f"getting test results for class:{class_name}")
+            class_id = id_numbers.get_class_id(driver, wait, class_name)
+            std_analysis: Analysis = get_analysis(class_name, class_id, std_test_name, driver, wait)
+            analyses.append(std_analysis)
+            print(std_analysis)
+            if has_ml:
+                ml_analysis: Analysis = get_analysis(class_name, class_id, ml_test_name, driver, wait)
+                print(ml_analysis)
+                analyses.append(ml_analysis)
+        for analysis in analyses:
+            print(analysis)
+        write_to_csv("Unit 5 Test", analyses)
         driver.quit()
         run = False
