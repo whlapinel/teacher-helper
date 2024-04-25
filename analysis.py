@@ -11,7 +11,7 @@ from test_reports import get_report, CanvasReport
 
 class Analysis:
     def __init__(self, test_name: str, test_id: int, class_name: str, class_id: int, percent_tested: float,
-                 avg_score: float, pct_failed: float, problem_questions: [int]) -> None:
+                 avg_score: float, pct_failed: float, problem_questions: List[int]) -> None:
         self.test_name: str = test_name
         self.test_id: int = test_id
         self.class_name: str = class_name
@@ -19,7 +19,7 @@ class Analysis:
         self.percent_tested: float = percent_tested
         self.avg_score: float = avg_score
         self.pct_failed: float = pct_failed
-        self.problem_questions: [int] = problem_questions
+        self.problem_questions: List[int] = problem_questions
 
     def __repr__(self):
         return (f"Analysis:\n"
@@ -88,16 +88,16 @@ def __get_pct_failed(results):
     return pct_failed
 
 
-def __get_problem_questions(report: CanvasReport) -> [int]:
+def __get_problem_questions(report: CanvasReport) -> List[int]:
     return [1, 2, 3, 4, 5, 6, 7, 8]
 
 
-def write_to_csv(report_name: str, analyses: [Analysis]) -> None:
+def write_to_csv(report_name: str, analyses: List[Analysis]) -> None:
     filename: str = f"{report_name} {datetime.date.today()}.csv"
     with open(filename, "w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["", "", f"{report_name}", "", ""])
-        writer.writerow(["class name", "test name", "pct tested", "avg score", "pct failed"])
+        writer.writerow(["class name", "test name", "pct tested", "avg score", "pct failed", "problem questions"])
         for analysis in analyses:
             writer.writerow([analysis.class_name, analysis.test_name, analysis.percent_tested, analysis.avg_score,
-                             analysis.pct_failed])
+                             analysis.pct_failed, analysis.problem_questions])

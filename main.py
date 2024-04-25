@@ -11,6 +11,18 @@ from test_scores import Score
 if __name__ == '__main__':
     run = True
     while run:
+        # prompt user to enter passcode
+        pin_input = input("Enter pin: ")
+        if pin_input != '1234':
+            print("Incorrect passcode. Exiting...")
+            run = False
+            continue
+        
+        
+        # prompt user to enter exact name of test to be analyzed
+        
+        # prompt user to enter name to give the report
+        
         user = users.User()
         if not user.load_from_config():
             user.construct_from_input()

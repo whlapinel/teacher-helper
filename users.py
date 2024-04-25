@@ -5,6 +5,7 @@ class User:
     def __init__(self):
         self.username = None
         self.password = None
+        self.pin = None
         self.classroom_names = [None]
 
     def __repr__(self):
@@ -38,6 +39,7 @@ class User:
     def construct_from_input(self):
         self.username = input("Enter your username: ")
         self.password = input("Enter your password: ")
+        self.pin = input("Your credentials will be stored on your device and encrypted. Enter a pin (4-6 digits): ")
         classrooms = []
         for i in range(1, 4):
             classroom = input(f"Enter classroom {i}: ")
