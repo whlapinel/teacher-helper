@@ -57,8 +57,7 @@ def __calc_percent_tested(results):
         if math.isnan(result.percentage):
             untested_names.append(result.first_name + " " + result.last_name)
             untested_count += 1
-        print("untested count", untested_count)
-        print("untested students: ", untested_names)
+    print("untested students: ", untested_names)
     tested_count = total_count - untested_count
     print(f"tested: {tested_count}")
     print(f"out of: {total_count}")
@@ -99,7 +98,7 @@ def write_to_csv(report_name: str, analyses: List[Analysis]) -> None:
     filename: str = f"{report_name} {datetime.date.today()}.csv"
     with open(filename, "w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["", "", f"{report_name}{datetime.datetime.today()}", "", ""])
+        writer.writerow(["", "", f"{report_name}{datetime.datetime.today()}", "", "", ""])
         writer.writerow(["class name", "test name", "pct tested", "avg score", "pct failed", "problem questions"])
         for analysis in analyses:
             writer.writerow([analysis.class_name, analysis.test_name, analysis.percent_tested, analysis.avg_score,

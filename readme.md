@@ -1,5 +1,5 @@
-# Test Data Helper App
-by Will Lapinel
+# Teacher's Helper App
+Created by Will Lapinel, CMS Science Teacher
 
 ## Note: Designed specifically for CMS teachers (code for login sequence is unique)
 
@@ -15,7 +15,7 @@ by Will Lapinel
 - Problem questions (questions which less than 60% of students answered correctly)
 
 ## Developer Notes:
-- Was hoping to run with easy executable via PyInstaller but I'm having some issues with it. Might require teachers to install Python and run the same way I'm running in testing and development.
+- Can create easy executable with Pyinstaller by running pynstaller "--one-file main.py" and then enter /dist directory and run with "./main.exe"
 - Need to add encryption of credentials and 4-digit pin (also encrypted) to access application.
 - To add to analysis report: 
 - - names of untested students per class
