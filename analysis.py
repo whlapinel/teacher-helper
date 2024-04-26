@@ -34,6 +34,9 @@ class Analysis:
 def get_analysis(class_name, class_id, test_name, driver, wait):
     print("running get_analysis...")
     test_id = id_numbers.get_test_id(class_id, driver, wait, test_name)
+    if not test_id:
+        print("Test not found")
+        return None
     report = get_report(class_id, test_id, driver, wait)
     scores = test_scores.get_scores(class_id, class_name, test_id, test_name, driver, wait)
     pct_tested = __calc_percent_tested(scores)

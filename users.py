@@ -1,12 +1,20 @@
 import json
+from typing import Union, List
 
 
+class Classroom:
+    def __init__(self, name, type):
+        if type not in ['standard', 'honors']:
+            raise ValueError("Classroom type must be 'standard' or 'honors'")
+        self.name = name
+        self.type: str = type
+    
 class User:
     def __init__(self):
         self.username = None
         self.password = None
         self.pin = None
-        self.classroom_names = [None]
+        self.classrooms: List[Classroom] = []
 
     def __repr__(self):
         return f"User(username: {self.username} password: {self.password} classes: {self.classroom_names})"

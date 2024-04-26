@@ -38,13 +38,19 @@ def get_scores(class_id, class_name, test_id, test_name, driver, wait):
         raise Exception("Wrong test scores loaded!!")
     return results
 
-
-def download_scores(class_id, test_id, driver, wait):
-    # driver should already be on the MC home page
-    # below url should download the test scores in Excel
+def go_to_download(class_id, test_id, driver):
     download_url = 'https://app.masteryconnect.com/classrooms/' + class_id + '/export/' + test_id + '/options?b=1'
     print(download_url)
     driver.get(download_url)
+    error_dialog = driver.find_element(By.CSS_SELECTOR, 'div.dialog.error_dialog h2.single_message')
+    if error_dialog:
+        print("Error loading class: ", error_dialog.text)
+        go_to_download()
+
+def download_scores(class_id, test_id, driver, wait):
+    # driver should already be on the MC home page
+    go_to_download(driver, class_id, test_id)
+    # below url should download the test scores in Excel
     checkbox = wait.until(EC.presence_of_element_located((By.NAME, "export_options[show_percentages]")))
     checkbox.click()
     checkbox2 = wait.until(EC.presence_of_element_located((By.NAME, "export_options[show_answers]")))

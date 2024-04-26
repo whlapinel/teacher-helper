@@ -1,7 +1,7 @@
 # Test Data Helper App
 by Will Lapinel
 
-## Designed for CMS teachers
+## Note: Designed specifically for CMS teachers (code for login sequence is unique)
 
 ## This application:
 - Logs in to MasteryConnect, 
@@ -13,3 +13,7 @@ by Will Lapinel
 - Avg Score 
 - Percent failed (< 60%)
 - Problem questions (questions which less than 60% of students answered correctly)
+
+## Developer Notes:
+- Was hoping to run with easy executable via PyInstaller but I'm having issues with it. Might require teachers to install Python and run the same way I'm running in testing and development.
+- Need to add encryption of credentials and 4-digit pin (also encrypted) to access application. 

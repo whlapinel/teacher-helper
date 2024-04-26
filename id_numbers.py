@@ -31,6 +31,8 @@ def get_test_id(class_id, driver, wait, test_name):
     class_url = f'https://app.masteryconnect.com/classrooms/{class_id}'
     driver.get(class_url)
     test_link = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'a[data-fullname="' + test_name + '"]')))
+    if not test_link:
+        return None
     test_url = test_link.get_attribute('href')
     print(test_url)
     parsed_url = urlparse(test_url)
