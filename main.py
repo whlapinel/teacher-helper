@@ -10,6 +10,8 @@ from test_scores import Score
 from typing import List
 from menu import get_choice
 
+
+
 def view_classes(user: users.User) -> None:
     print("Classes:")
     for classroom in user.classrooms:
@@ -28,16 +30,17 @@ def get_analysis_report(user: users.User):
             test_names.append({"type": classroom['type'], "name": test_name})
     ml_test_name = input("Enter name of ML version: ")
     driver = webdriver.Chrome()
-    wait = WebDriverWait(driver, 30)
+    wait = WebDriverWait(driver, 60)
     login.log_in(user, driver, wait)
     analyses: List[Analysis] = []
     for classroom in user.classrooms:
-        print(f"getting test results for class:{classroom.name} type:{classroom.type}")
-        test_name = test_names.filter(lambda x: x["type"] == classroom.type)[0]["name"]
-        class_id = id_numbers.get_class_id(driver, wait, classroom.name)
-        analysis: Analysis = get_analysis(classroom.name, class_id, test_name, driver, wait)
+        print(f"getting test results for class:{classroom['name']} type:{classroom['type']}")
+        test_name_filter = filter((lambda x: x["type"] == classroom['type']), test_names)
+        test_name = list(test_name_filter)[0]["name"]
+        class_id = id_numbers.get_class_id(driver, wait, classroom['name'])
+        analysis: Analysis = get_analysis(classroom['name'], class_id, test_name, driver, wait)
         analyses.append(analysis)
-        ml_analysis: Analysis = get_analysis(classroom.name, class_id, ml_test_name, driver, wait)
+        ml_analysis: Analysis = get_analysis(classroom['name'], class_id, ml_test_name, driver, wait)
         analyses.append(ml_analysis)
     for analysis in analyses:
         print(analysis)

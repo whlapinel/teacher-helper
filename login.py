@@ -3,8 +3,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 def log_in(user, driver, wait):
+    print("Opening browser and logging into Mastery Connect...")
     username = user.username
     password = user.password
+    print("accessing launchpad...")
     driver.get('https://launchpad.classlink.com/cmsk12')
     sign_in_btn = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'button.btn.btn-primary.btn-block.saml')))
     sign_in_btn.click()
@@ -15,6 +17,7 @@ def log_in(user, driver, wait):
     usr_input.send_keys(username)
     pwd_input.send_keys(password)
     submit_btn.click()
+    print("Signing in...")
     text_me_link = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'a#verificationOption0')))
     time.sleep(1)
     text_me_link.click()
@@ -34,4 +37,5 @@ def log_in(user, driver, wait):
             driver.switch_to.window(window_handle)
             break
     wait.until(EC.title_is("Mastery Connect :: Home"))
+    print("Logged in.")
     return driver

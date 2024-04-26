@@ -37,11 +37,11 @@ def get_analysis(class_name, class_id, test_name, driver, wait):
     if not test_id:
         print("Test not found")
         return None
-    report = get_report(class_id, test_id, driver, wait)
     scores = test_scores.get_scores(class_id, class_name, test_id, test_name, driver, wait)
     pct_tested = __calc_percent_tested(scores)
     avg_scores = __get_avg_score(scores)
     pct_failed = __get_pct_failed(scores)
+    report = get_report(class_id, test_id, driver, wait)
     problem_questions = __get_problem_questions(report)
     analysis = Analysis(test_name, test_id, class_name, class_id, pct_tested, avg_scores, pct_failed, problem_questions)
     return analysis
@@ -52,16 +52,17 @@ def __calc_percent_tested(results):
         return 0
     untested_count = 0
     total_count = len(results)
+    untested_names = []
     for result in results:
         if math.isnan(result.percentage):
-            print("is nan: ", result.first_name, " ", result.percentage)
-            print("percentage nan: ", result)
+            untested_names.append(result.first_name + " " + result.last_name)
             untested_count += 1
         print("untested count", untested_count)
+        print("untested students: ", untested_names)
     tested_count = total_count - untested_count
     print(f"tested: {tested_count}")
     print(f"out of: {total_count}")
-    percent_tested = round((tested_count / total_count) * 100, 1)
+    percent_tested = round((tested_count / total_count) * 100, 0)
     print("percent tested: ", percent_tested)
     return percent_tested
 
@@ -74,7 +75,7 @@ def __get_avg_score(results):
             total_count -= 1
         else:
             sum_scores += result.percentage
-    return round(sum_scores / total_count, 1)
+    return round(sum_scores / total_count, 0)
 
 
 def __get_pct_failed(results):
@@ -86,7 +87,6 @@ def __get_pct_failed(results):
         else:
             if result.percentage < 60:
                 fail_count += 1
-        print("fail count: ", fail_count)
     pct_failed = round((fail_count / total_count) * 100, 1)
     return pct_failed
 
@@ -99,7 +99,7 @@ def write_to_csv(report_name: str, analyses: List[Analysis]) -> None:
     filename: str = f"{report_name} {datetime.date.today()}.csv"
     with open(filename, "w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["", "", f"{report_name}", "", ""])
+        writer.writerow(["", "", f"{report_name}{datetime.datetime.today()}", "", ""])
         writer.writerow(["class name", "test name", "pct tested", "avg score", "pct failed", "problem questions"])
         for analysis in analyses:
             writer.writerow([analysis.class_name, analysis.test_name, analysis.percent_tested, analysis.avg_score,

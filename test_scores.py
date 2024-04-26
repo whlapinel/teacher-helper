@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from urllib.parse import urlparse
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver import Chrome
 
 
 class Score:
@@ -38,26 +39,19 @@ def get_scores(class_id, class_name, test_id, test_name, driver, wait):
         raise Exception("Wrong test scores loaded!!")
     return results
 
-def go_to_download(class_id, test_id, driver):
-    download_url = 'https://app.masteryconnect.com/classrooms/' + class_id + '/export/' + test_id + '/options?b=1'
-    print(download_url)
-    driver.get(download_url)
-    error_dialog = driver.find_element(By.CSS_SELECTOR, 'div.dialog.error_dialog h2.single_message')
-    if error_dialog:
-        print("Error loading class: ", error_dialog.text)
-        go_to_download()
 
-def download_scores(class_id, test_id, driver, wait):
+def download_scores(class_id, test_id, driver, wait: WebDriverWait):
     # driver should already be on the MC home page
-    go_to_download(driver, class_id, test_id)
     # below url should download the test scores in Excel
+    download_url = 'https://app.masteryconnect.com/classrooms/' + class_id + '/export/' + test_id + '/options?b=1'
+    driver.get(download_url)
     checkbox = wait.until(EC.presence_of_element_located((By.NAME, "export_options[show_percentages]")))
     checkbox.click()
     checkbox2 = wait.until(EC.presence_of_element_located((By.NAME, "export_options[show_answers]")))
     checkbox2.click()
     export_btn = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'button.no-disable')))
     export_btn.click()
-    time.sleep(5)
+    time.sleep(5) # give time for file to download
     return
 
 

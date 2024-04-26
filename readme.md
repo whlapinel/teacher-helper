@@ -15,5 +15,8 @@ by Will Lapinel
 - Problem questions (questions which less than 60% of students answered correctly)
 
 ## Developer Notes:
-- Was hoping to run with easy executable via PyInstaller but I'm having issues with it. Might require teachers to install Python and run the same way I'm running in testing and development.
-- Need to add encryption of credentials and 4-digit pin (also encrypted) to access application. 
+- Was hoping to run with easy executable via PyInstaller but I'm having some issues with it. Might require teachers to install Python and run the same way I'm running in testing and development.
+- Need to add encryption of credentials and 4-digit pin (also encrypted) to access application.
+- To add to analysis report: 
+- - names of untested students per class
+- - combined percentage tested (combine ML and Standard)
