@@ -39,8 +39,10 @@ def get_analysis_report(user: users.User):
         test_name = list(test_name_filter)[0]["name"]
         class_id = id_numbers.get_class_id(driver, wait, classroom['name'])
         analysis: Analysis = get_analysis(classroom['name'], class_id, test_name, driver, wait)
-        analyses.append(analysis)
         ml_analysis: Analysis = get_analysis(classroom['name'], class_id, ml_test_name, driver, wait)
+        analysis.percent_tested += ml_analysis.percent_tested # combine percentages
+        ml_analysis.percent_tested += analysis.percent_tested # combine percentages
+        analyses.append(analysis)
         analyses.append(ml_analysis)
     for analysis in analyses:
         print(analysis)
